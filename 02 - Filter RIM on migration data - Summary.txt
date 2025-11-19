@@ -1,0 +1,13 @@
+======================================================================
+RIM DATA MIGRATION FILTER REPORT
+======================================================================
+Generated: 2025-11-10 10:51:04
+Filter Date Range: 2025-11-03T00:00:00.000Z to 2025-11-09T23:59:59.000Z
+
+SUMMARY:
+----------------------------------------------------------------------
+File processed: regulatory_objective__rim.csv
+Original rows: 19,612
+Filtered rows: 5,017
+Filter retention rate: 25.58%
+

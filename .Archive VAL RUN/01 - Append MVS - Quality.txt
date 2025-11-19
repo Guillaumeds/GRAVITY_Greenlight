@@ -1,0 +1,70 @@
+============================================================
+MVS FILES APPEND QUALITY REPORT
+============================================================
+Generated: 2025-09-18 20:36:50
+
+SUMMARY:
+  Total files found: 10
+  Successfully processed: 10
+  Sum of individual file rows: 2,175,365
+  Total rows in appended file: 2,175,365
+  SUCCESS: Row count validation: PASSED (no data loss/duplication)
+
+FILE DETAILS:
+------------------------------------------------------------
+File: Apple _ MVS (01 Aug 2025).xlsx
+  Rows: 3,627
+  Columns: 74
+
+File: Aquarius_ MVS  (01 Aug 2025).xlsx
+  Rows: 14,989
+  Columns: 74
+
+File: Bloom_ MVS  (01 Aug 2025).xlsx
+  Rows: 11,997
+  Columns: 74
+
+File: Correvio_ MVS (01 Aug 2025).xlsx
+  Rows: 3,150
+  Columns: 74
+
+File: COSMOS MVS (01 Aug 2025).xlsx
+  Rows: 14,936
+  Columns: 74
+
+File: ELIZ_MVS (01 Aug 2025).xlsx
+  Rows: 25,146
+  Columns: 74
+
+File: Iroko_MVS (01 Aug 2025).xlsx
+  Rows: 2,021
+  Columns: 74
+
+File: Nightingale_ MVS  (01 Aug 2025).xlsx
+  Rows: 30,048
+  Columns: 74
+
+File: Novartis_ MVS (01 Aug 2025).xlsx
+  Rows: 1,048,574
+  Columns: 74
+
+File: VIKING_MVS (1 Aug 2025) - In scope only.xlsx
+  Rows: 1,020,877
+  Columns: 74
+
+COLUMN ANALYSIS:
+------------------------------------------------------------
+Total unique columns found: 74
+Columns: > 3 months overdue, > 3 months overdue.1, ACTUAL MA license number
+(MA number or registration ID from RIM), ACTUAL MA license number
+(MA number provided by PO), AGI Project No , Actual Decision Date, Actual Registration ID number in RIM, Actual Submission Date, Actual Submission Pack Delivery date, Application 
+(ID or link), Application ID (Migration Check), Assessment / Escalation /Action taken, Assessment / Escalation /Action taken.1, Check, Comment QA, Comment for migration, Concatenate (For verification purposes), Concatenate name (for filtering purpose), Country, Current Registered Shelf Life, Date Approved CS sent to site for implementation, Date CS sent to APTL/Affiliate for review, Date of Assessment by QA, Date of Implementation at site  (updated by QA)
+DD-MM-YYYY, Date when NoD received, Date when NoS logged, Date when NoS received, Deal, Description of Variation, Dosage form, Earliest Approval Date, Earliest Approval Timelines (months) , General Comments for this Variation, Green light for change to be implemented at site- by REG
+YES/NO, Implementation Rules, Is Artwork Impacted, Is a Regulatory Objective created in Veeva RIM?
+(ID or link), Is a Submission Record created in Veeva RIM?
+(ID or link), Is the Site Quality Document Affected, Is the line Out Of Scope of the migration? = no active license or not owned by AGI anymore (divested), Is the risk due to AGI delay / miss? (Yes/No), Is the submission baselined (Yes/No)?, Is there any risk identified? (Yes/No), Latest Approval Date, Latest Approval Timelines (months) , License Status, MRP (Identification), Mapping Verdict, Marketing Status from Affiliate: Y/N, Molecule, NoD Log Date (competed), NoD Log Date (start), PR Reference Number, Pack Size, Pack Type, Planned Submission Date
+(Latest), Planned Submission Pack Delivery Date, Priority
+Project: T1, T2, T3, Tx
+Ops: H, M, L, X, Safety, Product Family, Region, Registered Shelf Life after Variation Approval, Registration Number, Regulatory Validation Date, Regulatory Variation Status, Reviewed by PO?, Revised Latest Approval Date, Revised Submission Date, Revised Submission Pack Delivery date, Risk Print Manufactured/Pack launch/Pack discontinuation number, Shall different site be assessed?, Strength, Unique ID, Validation date for Green light for change to be implemented at site- by REG
+DD-MM-YYYY, Variation Type
+
