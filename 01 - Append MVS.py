@@ -123,6 +123,9 @@ def main():
     print("=" * 60)
     print("MVS FILES APPEND SCRIPT")
     print("=" * 60)
+    print("Source: https://teams.microsoft.com/l/message/19:d5513a9a-0462-4f30-b139-b0feec369257_f6aa8a34-3704-4bca-9de0-915422f51a16@unq.gbl.spaces/1763531704050")
+    print("NOTE: Manually download latest MVS files from Teams link above to '01 Source MVS' folder")
+    print("=" * 60)
     
     # Define paths
     source_dir = pathlib.Path("01 Source MVS")

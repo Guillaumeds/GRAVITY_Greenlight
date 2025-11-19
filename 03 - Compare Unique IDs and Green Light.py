@@ -175,6 +175,46 @@ def extract_rim_product_family(rim_file: pathlib.Path) -> Dict[str, str]:
     return rim_product_family
 
 
+def extract_rim_additional_data(rim_file: pathlib.Path) -> tuple[Dict[str, str], Dict[str, str], Dict[str, str]]:
+    """Extract additional RIM data: date_of_greenlight__c, additional_implementation_info__c, and id."""
+    print(f"Loading additional RIM data from: {rim_file}")
+
+    df = pd.read_csv(rim_file, encoding='utf-8')
+
+    if 'external_id__c' not in df.columns:
+        print("ERROR: 'external_id__c' column not found in RIM file")
+        sys.exit(1)
+
+    rim_greenlight_date = {}
+    rim_additional_info = {}
+    rim_record_id = {}
+
+    for _, row in df.iterrows():
+        external_id = row['external_id__c']
+        
+        # Get date_of_greenlight__c if exists
+        greenlight_date_val = row.get('date_of_greenlight__c', '')
+        # Get additional_implementation_info__c if exists
+        additional_info_val = row.get('additional_implementation_info__c', '')
+        # Get id if exists
+        id_val = row.get('id', '')
+
+        if pd.notna(external_id) and str(external_id).strip():
+            # Split by pipe delimiter and clean each ID
+            ids = [id_val.strip() for id_val in str(external_id).split('|') if id_val.strip()]
+            for ext_id in ids:
+                # Store values for this ID (use first occurrence if multiple)
+                if ext_id not in rim_greenlight_date:
+                    rim_greenlight_date[ext_id] = str(greenlight_date_val).strip() if pd.notna(greenlight_date_val) else ""
+                if ext_id not in rim_additional_info:
+                    rim_additional_info[ext_id] = str(additional_info_val).strip() if pd.notna(additional_info_val) else ""
+                if ext_id not in rim_record_id:
+                    rim_record_id[ext_id] = str(id_val).strip() if pd.notna(id_val) else ""
+
+    print(f"  Loaded additional data for {len(rim_greenlight_date)} RIM IDs")
+    return rim_greenlight_date, rim_additional_info, rim_record_id
+
+
 def is_in_scope_fuzzy(out_of_scope_value: str) -> bool:
     """Check if a value indicates 'In Scope' using fuzzy matching."""
     if pd.isna(out_of_scope_value) or not str(out_of_scope_value).strip():
@@ -378,7 +418,8 @@ def load_product_data(product_file: pathlib.Path) -> pd.DataFrame:
 
 def analyze_mvs_data(mvs_file: pathlib.Path, rim_ids: Dict[str, int], create_ids: Dict[str, int], update_ids: Dict[str, int],
                     create_greenlight: Dict[str, str], update_greenlight: Dict[str, str], rim_greenlight: Dict[str, str],
-                    rim_product_family: Dict[str, str]) -> List[Dict]:
+                    rim_product_family: Dict[str, str], rim_greenlight_date: Dict[str, str], 
+                    rim_additional_info: Dict[str, str], rim_record_id: Dict[str, str]) -> List[Dict]:
     """Analyze MVS data to show which MVS IDs are found in RIM set."""
     print(f"Reading MVS file: {mvs_file}")
 
@@ -389,6 +430,8 @@ def analyze_mvs_data(mvs_file: pathlib.Path, rim_ids: Dict[str, int], create_ids
     out_of_scope_col = 'Is the line Out Of Scope of the migration? = no active license or not owned by AGI anymore (divested)'
     green_light_col = 'Green light for change to be implemented at site- by REG\nYES/NO'
     molecule_col = 'Molecule'
+    implementation_rules_col = 'Implementation Rules'
+    validation_date_col = 'Validation date for Green light for change to be implemented at site- by REG'
 
     if unique_id_col not in df.columns:
         print("ERROR: 'Unique ID' column not found in MVS file")
@@ -413,12 +456,20 @@ def analyze_mvs_data(mvs_file: pathlib.Path, rim_ids: Dict[str, int], create_ids
     results = []
 
     # Group by Unique ID to count occurrences and capture additional columns
-    mvs_grouped = df.groupby(unique_id_col).agg({
+    agg_dict = {
         out_of_scope_col: 'first',  # Take first occurrence of Out of Scope value
         green_light_col: 'first',   # Take first occurrence of Green light value
         molecule_col: 'first',      # Take first occurrence of Molecule value
         unique_id_col: 'count'      # Count occurrences
-    }).rename(columns={unique_id_col: 'count'})
+    }
+    
+    # Add new columns if they exist
+    if implementation_rules_col in df.columns:
+        agg_dict[implementation_rules_col] = 'first'
+    if validation_date_col in df.columns:
+        agg_dict[validation_date_col] = 'first'
+    
+    mvs_grouped = df.groupby(unique_id_col).agg(agg_dict).rename(columns={unique_id_col: 'count'})
 
     for mvs_id, row in mvs_grouped.iterrows():
         if pd.notna(mvs_id) and str(mvs_id).strip():
@@ -447,6 +498,11 @@ def analyze_mvs_data(mvs_file: pathlib.Path, rim_ids: Dict[str, int], create_ids
 
             # Get RIM product family for this MVS ID
             rim_product_family_value = rim_product_family.get(mvs_id_str, "")
+            
+            # Get new RIM fields for this MVS ID
+            rim_greenlight_date_value = rim_greenlight_date.get(mvs_id_str, "")
+            rim_additional_info_value = rim_additional_info.get(mvs_id_str, "")
+            rim_record_id_value = rim_record_id.get(mvs_id_str, "")
 
 
 
@@ -459,6 +515,19 @@ def analyze_mvs_data(mvs_file: pathlib.Path, rim_ids: Dict[str, int], create_ids
             molecule_value = row[molecule_col]
             if pd.isna(molecule_value):
                 molecule_value = ""
+            
+            # Get new MVS columns if they exist
+            implementation_rules_value = ""
+            if implementation_rules_col in row.index:
+                implementation_rules_value = row[implementation_rules_col]
+                if pd.isna(implementation_rules_value):
+                    implementation_rules_value = ""
+            
+            validation_date_value = ""
+            if validation_date_col in row.index:
+                validation_date_value = row[validation_date_col]
+                if pd.isna(validation_date_value):
+                    validation_date_value = ""
 
             results.append({
                 'MVS_Unique_ID': mvs_id_str,
@@ -469,9 +538,14 @@ def analyze_mvs_data(mvs_file: pathlib.Path, rim_ids: Dict[str, int], create_ids
                 'Count_in_RIM': count_in_rim,
                 'Found_in_RIM': 'Yes' if count_in_rim > 0 else 'No',
                 'Green_Light_MVS': str(green_light_value).strip(),
+                'MVS_Implementation_Rules': str(implementation_rules_value).strip(),
+                'MVS_Validation_Date': str(validation_date_value).strip(),
                 'Greenlight_RO_Loader_Create': greenlight_create,
                 'Greenlight_RO_Loader_Update': greenlight_update,
                 'Greenlight_RIM': greenlight_rim,
+                'RIM_Date_of_Greenlight': str(rim_greenlight_date_value).strip(),
+                'RIM_Additional_Implementation_Info': str(rim_additional_info_value).strip(),
+                'RIM_Record_ID': str(rim_record_id_value).strip(),
                 'MVS_Molecule': str(molecule_value).strip(),
                 'RIM_Product_Family': str(rim_product_family_value).strip(),
                 'RIM_Product_Name': ""  # Will be populated by merge_product_family_data
@@ -574,12 +648,16 @@ def main():
 
     # Load RIM product family data
     rim_product_family = extract_rim_product_family(rim_file)
+    
+    # Load additional RIM data (date_of_greenlight__c, additional_implementation_info__c, id)
+    rim_greenlight_date, rim_additional_info, rim_record_id = extract_rim_additional_data(rim_file)
 
     # Load product data for merging
     product_df = load_product_data(product_file)
 
     # Analyze MVS data
-    results = analyze_mvs_data(mvs_file, rim_ids, create_ids, update_ids, create_greenlight, update_greenlight, rim_greenlight, rim_product_family)
+    results = analyze_mvs_data(mvs_file, rim_ids, create_ids, update_ids, create_greenlight, update_greenlight, 
+                               rim_greenlight, rim_product_family, rim_greenlight_date, rim_additional_info, rim_record_id)
 
     # Merge product family data
     results = merge_product_family_data(results, product_df)
